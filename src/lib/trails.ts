@@ -136,6 +136,19 @@ export function difficultyColor(d: string): string {
   return 'text-warning border-warning';
 }
 
+export const FALLBACK_TRAILS: Trail[] = [
+  { id: 'fb_1', title: 'Rajgad Fort', location: 'Pune', lat: 18.2461, lng: 73.6828, difficulty: 'Hard', distance: 6.5, rating: 4.7, elevation: 1395, typeIcon: '🏯', typeLabel: 'Fort', isHighRated: true, popularity: 80 },
+  { id: 'fb_2', title: 'Lohagad Fort', location: 'Lonavala', lat: 18.7083, lng: 73.4769, difficulty: 'Moderate', distance: 3.5, rating: 4.5, elevation: 1033, typeIcon: '🏯', typeLabel: 'Fort', isHighRated: true, popularity: 75 },
+  { id: 'fb_3', title: 'Kalsubai Peak', location: 'Ahmednagar', lat: 19.6015, lng: 73.7107, difficulty: 'Hard', distance: 8.0, rating: 4.8, elevation: 1646, typeIcon: '🏔️', typeLabel: 'Peak', isHighRated: true, popularity: 90 },
+  { id: 'fb_4', title: 'Harishchandragad', location: 'Ahmednagar', lat: 19.3930, lng: 73.7790, difficulty: 'Hard', distance: 7.2, rating: 4.6, elevation: 1424, typeIcon: '🏔️', typeLabel: 'Peak', isHighRated: true, popularity: 85 },
+  { id: 'fb_5', title: 'Visapur Fort', location: 'Lonavala', lat: 18.7178, lng: 73.4633, difficulty: 'Moderate', distance: 4.0, rating: 4.3, elevation: 1084, typeIcon: '🏯', typeLabel: 'Fort', isHighRated: false, popularity: 60 },
+  { id: 'fb_6', title: 'Tikona Fort', location: 'Pawna', lat: 18.6513, lng: 73.4956, difficulty: 'Moderate', distance: 3.0, rating: 4.2, elevation: 1066, typeIcon: '🏯', typeLabel: 'Fort', isHighRated: false, popularity: 55 },
+  { id: 'fb_7', title: 'Devkund Waterfall', location: 'Bhira', lat: 18.3950, lng: 73.4600, difficulty: 'Easy', distance: 5.0, rating: 4.4, elevation: null, typeIcon: '💧', typeLabel: 'Waterfall', isHighRated: false, popularity: 65 },
+  { id: 'fb_8', title: 'Andharban Trail', location: 'Tamhini', lat: 18.4600, lng: 73.4300, difficulty: 'Moderate', distance: 13.0, rating: 4.6, elevation: 850, typeIcon: '🌿', typeLabel: 'Reserve', isHighRated: true, popularity: 70 },
+  { id: 'fb_9', title: 'Torna Fort', location: 'Pune', lat: 18.2767, lng: 73.6228, difficulty: 'Hard', distance: 7.5, rating: 4.5, elevation: 1403, typeIcon: '🏯', typeLabel: 'Fort', isHighRated: true, popularity: 78 },
+  { id: 'fb_10', title: 'Duke\'s Nose', location: 'Lonavala', lat: 18.7345, lng: 73.4123, difficulty: 'Easy', distance: 2.5, rating: 4.1, elevation: 650, typeIcon: '🌄', typeLabel: 'Viewpoint', isHighRated: false, popularity: 50 },
+];
+
 export function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
