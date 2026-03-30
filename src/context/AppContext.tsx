@@ -170,12 +170,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setTrails(prev => {
         const existingIds = new Set(prev.map(t => t.id));
         const newTrails = fetched.filter(t => !existingIds.has(t.id));
+        if (newTrails.length === 0 && prev.length === 0) {
+          // Use fallback trails if nothing loaded
+          return FALLBACK_TRAILS;
+        }
         if (newTrails.length === 0) return prev;
         const merged = [...prev, ...newTrails].sort((a, b) => b.popularity - a.popularity);
         return merged;
       });
     } catch (e) {
       console.warn('Failed to fetch trails:', e);
+      setTrails(prev => prev.length === 0 ? FALLBACK_TRAILS : prev);
     }
     setIsLoadingTrails(false);
   }, []);

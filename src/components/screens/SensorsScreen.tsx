@@ -185,7 +185,7 @@ export default function SensorsScreen() {
           <div className="flex justify-around my-4">
             {[
               { val: trackDist, label: 'KM' },
-              { val: trackElev, label: 'Elevation M' },
+              { val: isTracking ? elevGain : '0', label: 'Elev Gain M' },
               { val: speed, label: 'KM/H' },
               { val: trackPts.toString(), label: 'GPS Pts' },
             ].map(s => (

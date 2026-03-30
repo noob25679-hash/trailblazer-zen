@@ -51,7 +51,7 @@ export async function fetchTrailsFromOverpass(
   for (const mirror of mirrors) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000);
+      const timeout = setTimeout(() => controller.abort(), 30000);
       const res = await fetch(`${mirror}?data=${encodeURIComponent(query)}`, {
         signal: controller.signal,
       });
