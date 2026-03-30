@@ -29,6 +29,8 @@ export default function SensorsScreen() {
   const trackPointsRef = useRef<[number, number][]>([]);
   const trackDistRef = useRef(0);
   const gpsWatchRef = useRef<number | null>(null);
+  const startAltitudeRef = useRef<number | null>(null);
+  const [elevGain, setElevGain] = useState('0');
 
   const degreesToDir = (deg: number) => {
     const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N'];
