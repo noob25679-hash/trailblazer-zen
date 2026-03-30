@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { Trail, fetchTrailsFromOverpass } from '@/lib/trails';
+import { Trail, fetchTrailsFromOverpass, FALLBACK_TRAILS } from '@/lib/trails';
 import { TrekLog, calcXP, getRank } from '@/lib/xp';
 
 type Screen = 'feed' | 'map' | 'saved' | 'logs' | 'profile' | 'sensors' | 'rank' | 'shop' | 'camera';
