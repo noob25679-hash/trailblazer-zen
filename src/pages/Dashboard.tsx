@@ -11,6 +11,7 @@ import ProfileScreen from '@/components/screens/ProfileScreen';
 import SensorsScreen from '@/components/screens/SensorsScreen';
 import RankScreen from '@/components/screens/RankScreen';
 import ShopScreen from '@/components/screens/ShopScreen';
+import CameraScreen from '@/components/screens/CameraScreen';
 import LogModal from '@/components/modals/LogModal';
 import StartTrekModal from '@/components/modals/StartTrekModal';
 
