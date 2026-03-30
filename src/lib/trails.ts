@@ -62,11 +62,11 @@ export async function fetchTrailsFromOverpass(
   });
 
   let data: any = null;
-  try {
-    data = await Promise.any(mirrorRequests);
-  } catch {
-    data = null;
-  }
+  const settled = await Promise.allSettled(mirrorRequests);
+  const fulfilled = settled.find(
+    (result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled'
+  );
+  data = fulfilled?.value ?? null;
 
   if (!data?.elements) return [];
 
