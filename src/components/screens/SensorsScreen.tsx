@@ -47,7 +47,17 @@ export default function SensorsScreen() {
           setLng(longitude.toFixed(5));
           setAcc(Math.round(accuracy).toString());
           setSpeed(s ? (s * 3.6).toFixed(1) : '0.0');
-          if (altitude) { setElev(Math.round(altitude).toString()); setTrackElev(Math.round(altitude).toString()); }
+          if (altitude != null) {
+            setElev(Math.round(altitude).toString());
+            if (isTracking) {
+              if (startAltitudeRef.current === null) {
+                startAltitudeRef.current = altitude;
+              }
+              const gain = Math.max(0, Math.round(altitude - startAltitudeRef.current));
+              setElevGain(gain.toString());
+              setTrackElev(gain.toString());
+            }
+          }
 
           if (isTracking && trackPointsRef.current.length > 0) {
             const prev = trackPointsRef.current[trackPointsRef.current.length - 1];
