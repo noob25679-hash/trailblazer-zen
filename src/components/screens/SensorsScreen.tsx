@@ -137,6 +137,8 @@ export default function SensorsScreen() {
     trackStartRef.current = Date.now();
     trackPointsRef.current = [];
     trackDistRef.current = 0;
+    startAltitudeRef.current = null;
+    setElevGain('0');
     const interval = setInterval(() => {
       const elapsed = Date.now() - trackStartRef.current;
       const h = Math.floor(elapsed / 3600000).toString().padStart(2, '0');
