@@ -32,7 +32,7 @@ export async function fetchTrailsFromOverpass(
   lng: number,
   radiusMeters: number = 40000
 ): Promise<Trail[]> {
-  const query = `[out:json][timeout:25];(
+  const query = `[out:json][timeout:12];(
     node["historic"="fort"]["name"](around:${radiusMeters},${lat},${lng});
     way["historic"="fort"]["name"](around:${radiusMeters},${lat},${lng});
     node["natural"="peak"]["name"](around:${radiusMeters},${lat},${lng});
@@ -45,24 +45,27 @@ export async function fetchTrailsFromOverpass(
   const mirrors = [
     'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.fr/api/interpreter',
   ];
 
-  let data: any = null;
-  for (const mirror of mirrors) {
+  const queryParam = encodeURIComponent(query);
+  const mirrorRequests = mirrors.map(async mirror => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
-      const res = await fetch(`${mirror}?data=${encodeURIComponent(query)}`, {
-        signal: controller.signal,
-      });
+      const res = await fetch(`${mirror}?data=${queryParam}`, { signal: controller.signal });
+      if (!res.ok) throw new Error(`Mirror failed: ${res.status}`);
+      return await res.json();
+    } finally {
       clearTimeout(timeout);
-      if (res.ok) {
-        data = await res.json();
-        break;
-      }
-    } catch {
-      continue;
     }
+  });
+
+  let data: any = null;
+  try {
+    data = await Promise.any(mirrorRequests);
+  } catch {
+    data = null;
   }
 
   if (!data?.elements) return [];
