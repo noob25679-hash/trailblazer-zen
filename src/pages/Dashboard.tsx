@@ -73,7 +73,7 @@ function DashboardInner() {
       )}
 
       {/* Camera FAB */}
-      <button onClick={() => window.dispatchEvent(new CustomEvent('openLogModal'))}
+      <button onClick={() => setScreen('camera')}
         className="fixed right-0 z-[998] w-[52px] h-[52px] rounded-l-2xl border-none cursor-pointer flex items-center justify-center bg-gradient-to-br from-primary to-green-dark shadow-[-4px_4px_20px_rgba(34,197,94,0.4)] transition-all"
         style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 80px)' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
