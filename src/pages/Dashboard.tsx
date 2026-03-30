@@ -16,7 +16,7 @@ import LogModal from '@/components/modals/LogModal';
 import StartTrekModal from '@/components/modals/StartTrekModal';
 
 function DashboardInner() {
-  const { screen, isLoggedIn, isTracking, trackName } = useApp();
+  const { screen, setScreen, isLoggedIn, isTracking, trackName } = useApp();
   const [showLogModal, setShowLogModal] = useState(false);
   const [logPrefill, setLogPrefill] = useState('');
   const [showStartModal, setShowStartModal] = useState(false);
