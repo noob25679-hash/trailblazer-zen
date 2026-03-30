@@ -46,6 +46,7 @@ function DashboardInner() {
     sensors: <SensorsScreen />,
     rank: <RankScreen />,
     shop: <ShopScreen />,
+    camera: <CameraScreen />,
   };
 
   return (
