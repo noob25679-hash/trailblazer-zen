@@ -157,8 +157,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // Load cached trails from localStorage on mount
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('trekr_cached_trails');
+      if (cached) {
+        const parsed = JSON.parse(cached) as Trail[];
+        if (parsed.length > 0) setTrails(parsed);
+      } else {
+        // No cache yet — seed with fallback trails immediately
+        setTrails(FALLBACK_TRAILS);
+      }
+    } catch {
+      setTrails(FALLBACK_TRAILS);
+    }
+  }, []);
+
   const loadTrailsForArea = useCallback(async (lat: number, lng: number, zoom: number) => {
-    // Quantize to prevent too many requests
     const areaKey = `${lat.toFixed(1)}_${lng.toFixed(1)}_${zoom}`;
     if (lastFetchArea.current === areaKey) return;
     lastFetchArea.current = areaKey;
@@ -167,20 +182,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const radius = zoom > 12 ? 15000 : zoom > 9 ? 40000 : 80000;
     try {
       const fetched = await fetchTrailsFromOverpass(lat, lng, radius);
-      setTrails(prev => {
-        const existingIds = new Set(prev.map(t => t.id));
-        const newTrails = fetched.filter(t => !existingIds.has(t.id));
-        if (newTrails.length === 0 && prev.length === 0) {
-          // Use fallback trails if nothing loaded
-          return FALLBACK_TRAILS;
-        }
-        if (newTrails.length === 0) return prev;
-        const merged = [...prev, ...newTrails].sort((a, b) => b.popularity - a.popularity);
-        return merged;
-      });
+      if (fetched.length > 0) {
+        setTrails(prev => {
+          const existingIds = new Set(prev.filter(t => !t.id.startsWith('fb_')).map(t => t.id));
+          const newTrails = fetched.filter(t => !existingIds.has(t.id));
+          if (newTrails.length === 0) return prev;
+          // Replace fallbacks with real data, keep any existing real trails
+          const realPrev = prev.filter(t => !t.id.startsWith('fb_'));
+          const merged = [...realPrev, ...newTrails].sort((a, b) => b.popularity - a.popularity);
+          // Cache for offline use
+          try { localStorage.setItem('trekr_cached_trails', JSON.stringify(merged.slice(0, 100))); } catch {}
+          return merged;
+        });
+      }
+      // If fetched is empty, keep whatever we have (cached or fallback)
     } catch (e) {
       console.warn('Failed to fetch trails:', e);
-      setTrails(prev => prev.length === 0 ? FALLBACK_TRAILS : prev);
+      // Keep existing trails (cached or fallback) — no change needed
     }
     setIsLoadingTrails(false);
   }, []);
