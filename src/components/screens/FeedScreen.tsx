@@ -8,7 +8,14 @@ export default function FeedScreen() {
   const [filter, setFilter] = useState('all');
 
   const filtered = useMemo(() => {
-    let list = trails;
+    let list = [...trails];
+    // Sort by distance from user if location available
+    if (userLatLng) {
+      list = list.map(t => ({
+        ...t,
+        _dist: haversine(userLatLng[0], userLatLng[1], t.lat, t.lng),
+      })).sort((a, b) => (a as any)._dist - (b as any)._dist);
+    }
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(t => t.title.toLowerCase().includes(q) || t.location.toLowerCase().includes(q));
@@ -18,7 +25,7 @@ export default function FeedScreen() {
     else if (filter === 'moderate') list = list.filter(t => t.difficulty === 'Moderate');
     else if (filter === 'hard') list = list.filter(t => t.difficulty === 'Hard');
     return list;
-  }, [trails, search, filter]);
+  }, [trails, search, filter, userLatLng]);
 
   const filters = [
     { key: 'all', label: 'All' },
