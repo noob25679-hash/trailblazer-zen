@@ -210,24 +210,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setIsLoggedIn(false);
   }, []);
 
-  // Get user location on mount
+  // Get user location on mount — defer network fetch to avoid blocking initial render
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const ll: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-          setUserLatLng(ll);
-          loadTrailsForArea(ll[0], ll[1], 11);
-        },
-        () => {
-          // Default to Western Ghats area
-          loadTrailsForArea(19.2, 73.7, 10);
-        },
-        { timeout: 10000 }
-      );
-    } else {
-      loadTrailsForArea(19.2, 73.7, 10);
-    }
+    const timerId = setTimeout(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const ll: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+            setUserLatLng(ll);
+            loadTrailsForArea(ll[0], ll[1], 11);
+          },
+          () => {
+            loadTrailsForArea(19.2, 73.7, 10);
+          },
+          { timeout: 10000 }
+        );
+      } else {
+        loadTrailsForArea(19.2, 73.7, 10);
+      }
+    }, 2000); // Defer 2s so initial paint completes first
+    return () => clearTimeout(timerId);
   }, [loadTrailsForArea]);
 
   return (
