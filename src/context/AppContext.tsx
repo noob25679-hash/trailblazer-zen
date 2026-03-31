@@ -28,7 +28,7 @@ interface AppState {
   friends: any[];
   addFriend: (f: any) => void;
   removeFriend: (name: string) => void;
-  loadTrailsForArea: (lat: number, lng: number, zoom: number) => Promise<void>;
+  loadTrailsForArea: (lat: number, lng: number, zoom: number, force?: boolean) => Promise<void>;
   isLoadingTrails: boolean;
   showToast: (msg: string) => void;
   toastMessage: string;

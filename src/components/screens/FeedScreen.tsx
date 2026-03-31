@@ -133,7 +133,8 @@ export default function FeedScreen() {
   );
 }
 
-function TrailCard({ trail, saved, onSave, onLog }: { trail: Trail; saved: boolean; onSave: () => void; onLog: () => void }) {
+function TrailCard({ trail, saved, onSave, onLog, userLatLng }: { trail: Trail; saved: boolean; onSave: () => void; onLog: () => void; userLatLng?: [number, number] | null }) {
+  const dist = userLatLng ? haversine(userLatLng[0], userLatLng[1], trail.lat, trail.lng) : null;
   return (
     <div className="bg-card border border-border rounded-[20px] overflow-hidden mb-3 transition-transform active:scale-[0.98]">
       <div className="relative w-full h-40" style={{ background: 'linear-gradient(135deg, #0f2010, #162816)' }}>
@@ -144,7 +145,7 @@ function TrailCard({ trail, saved, onSave, onLog }: { trail: Trail; saved: boole
           {trail.typeIcon || '⛰️'} {trail.title}
         </div>
         <div className="text-[11px] text-muted-foreground mb-2.5">
-          📍 {trail.location} {trail.typeLabel && <span className="text-primary text-[10px]">· {trail.typeLabel}</span>}
+          📍 {trail.location} {dist !== null && <span className="text-primary text-[10px]">· {dist < 1 ? `${(dist * 1000).toFixed(0)}m away` : `${dist.toFixed(1)}km away`}</span>} {trail.typeLabel && <span className="text-primary text-[10px]">· {trail.typeLabel}</span>}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`font-mono text-[9px] font-medium px-2 py-0.5 rounded-md border uppercase tracking-[0.5px] ${difficultyColor(trail.difficulty)}`}>{trail.difficulty}</span>
