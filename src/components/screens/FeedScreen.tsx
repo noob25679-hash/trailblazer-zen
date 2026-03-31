@@ -82,12 +82,32 @@ export default function FeedScreen() {
         ))}
       </div>
 
+      {/* Refresh nearby button */}
+      <div className="px-4 mb-3">
+        <button onClick={() => {
+          if (userLatLng) {
+            loadTrailsForArea(userLatLng[0], userLatLng[1], 11, true);
+          } else {
+            showToast('📍 Getting location...');
+            navigator.geolocation?.getCurrentPosition(
+              pos => loadTrailsForArea(pos.coords.latitude, pos.coords.longitude, 11, true),
+              () => showToast('⚠️ Location unavailable'),
+              { timeout: 10000 }
+            );
+          }
+        }}
+          className="w-full py-2.5 rounded-full border border-border bg-card text-secondary-foreground font-mono text-[11px] tracking-[1px] uppercase cursor-pointer flex items-center justify-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          {isLoadingTrails ? 'Scanning...' : 'Discover nearby trails'}
+        </button>
+      </div>
+
       {/* Feed */}
       <div className="flex-1 overflow-y-auto scroll-hide pb-4">
         <div className="px-4">
           {isLoadingTrails && trails.length === 0 ? (
             <div className="text-center py-16">
-              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" className="mx-auto mb-2 animate-pulse-green">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" className="mx-auto mb-2 animate-pulse">
                 <circle cx="50" cy="50" r="48" fill="#10B981" fillOpacity="0.1"/>
                 <circle cx="50" cy="50" r="40" fill="#10B981" stroke="white" strokeWidth="4"/>
                 <path d="M30 65L50 30L70 65" stroke="white" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -104,7 +124,7 @@ export default function FeedScreen() {
             </div>
           ) : (
             filtered.map(trail => (
-              <TrailCard key={trail.id} trail={trail} saved={!!savedTrails.find(s => s.id === trail.id)} onSave={() => toggleSave(trail)} onLog={() => openLogModal(trail.title)} />
+              <TrailCard key={trail.id} trail={trail} saved={!!savedTrails.find(s => s.id === trail.id)} onSave={() => toggleSave(trail)} onLog={() => openLogModal(trail.title)} userLatLng={userLatLng} />
             ))
           )}
         </div>
