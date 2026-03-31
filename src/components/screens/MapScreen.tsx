@@ -19,9 +19,9 @@ export default function MapScreen() {
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const userMarkerRef = useRef<L.Marker | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const [sheetTrail, setSheetTrail] = useState<any>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [showScanBtn, setShowScanBtn] = useState(false);
 
   const addUserDot = useCallback((map: L.Map, ll: [number, number]) => {
     if (userMarkerRef.current) map.removeLayer(userMarkerRef.current);
@@ -52,56 +52,49 @@ export default function MapScreen() {
       maxZoom: 18,
     }).addTo(map);
 
+    // Show "Scan this area" button when user pans/zooms instead of auto-fetching
     map.on('moveend', () => {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        const center = map.getCenter();
-        loadTrailsForArea(center.lat, center.lng, map.getZoom());
-      }, 700);
+      setShowScanBtn(true);
     });
 
     mapRef.current = map;
     setMapReady(true);
 
-    const center = map.getCenter();
-    loadTrailsForArea(center.lat, center.lng, map.getZoom());
-
     if (userLatLng) {
       addUserDot(map, userLatLng);
     }
-  }, [addUserDot, loadTrailsForArea, userLatLng]);
+  }, [addUserDot, userLatLng]);
 
   useEffect(() => {
     initMap();
-    return () => {
-      clearTimeout(debounceRef.current);
-    };
   }, [initMap]);
 
   useEffect(() => {
     if (screen !== 'map' || !mapRef.current) return;
-
     const map = mapRef.current;
     const sync = setTimeout(() => {
       map.invalidateSize(true);
-      const center = map.getCenter();
-      loadTrailsForArea(center.lat, center.lng, map.getZoom());
       if (userLatLng) addUserDot(map, userLatLng);
     }, 120);
-
     return () => clearTimeout(sync);
-  }, [screen, userLatLng, addUserDot, loadTrailsForArea]);
+  }, [screen, userLatLng, addUserDot]);
 
+  // Scan this area handler
+  const scanArea = useCallback(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    const center = map.getCenter();
+    setShowScanBtn(false);
+    loadTrailsForArea(center.lat, center.lng, map.getZoom());
+  }, [loadTrailsForArea]);
+
+  // Render markers when trails change
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
     markersRef.current.forEach(m => {
-      try {
-        map.removeLayer(m);
-      } catch {
-        // ignore stale marker cleanup errors
-      }
+      try { map.removeLayer(m); } catch {}
     });
     markersRef.current = [];
 
@@ -140,7 +133,6 @@ export default function MapScreen() {
 
   const locateMe = () => {
     if (!navigator.geolocation) return showToast('⚠️ Location not supported');
-
     showToast('📍 Getting location...');
     navigator.geolocation.getCurrentPosition(
       pos => {
@@ -162,25 +154,17 @@ export default function MapScreen() {
     <div className="absolute inset-0" style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' }}>
       <div ref={containerRef} className="absolute inset-0" />
 
-      <div
-        className="absolute left-4 right-4 flex justify-between items-center pointer-events-none z-[500]"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}
-      >
-        <div className="pointer-events-auto bg-background/90 backdrop-blur-xl border border-border-bright rounded-full px-4 py-2 flex items-center gap-2">
-          <div
-            className={`w-1.5 h-1.5 rounded-full transition-colors ${
-              isLoadingTrails ? 'bg-primary animate-pulse-green' : 'bg-text-dim'
-            }`}
-          />
+      {/* Top bar */}
+      <div className="absolute left-4 right-4 flex justify-between items-center pointer-events-none z-[500] top-2">
+        <div className="pointer-events-auto bg-background/90 backdrop-blur-xl border border-border rounded-full px-4 py-2 flex items-center gap-2">
+          <div className={`w-1.5 h-1.5 rounded-full transition-colors ${isLoadingTrails ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
           <span className="font-mono text-[10px] text-secondary-foreground tracking-[1px]">
             {markersRef.current.length} TRAILS
           </span>
         </div>
 
-        <button
-          onClick={locateMe}
-          className="pointer-events-auto cursor-pointer bg-background/90 backdrop-blur-xl border border-border-bright rounded-full px-4 py-2 flex items-center gap-2"
-        >
+        <button onClick={locateMe}
+          className="pointer-events-auto cursor-pointer bg-background/90 backdrop-blur-xl border border-border rounded-full px-4 py-2 flex items-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
             <circle cx="12" cy="12" r="3" />
             <path d="M12 1v4M12 19v4M1 12h4M19 12h4" />
@@ -189,26 +173,40 @@ export default function MapScreen() {
         </button>
       </div>
 
-      <div
-        className="absolute right-4 z-[500] flex flex-col gap-2"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 66px)' }}
-      >
-        <button
-          onClick={() => mapRef.current?.zoomIn()}
-          className="w-[42px] h-[42px] rounded-full bg-background/90 border border-border-bright flex items-center justify-center cursor-pointer text-secondary-foreground text-[20px] font-light"
-        >
-          +
-        </button>
-        <button
-          onClick={() => mapRef.current?.zoomOut()}
-          className="w-[42px] h-[42px] rounded-full bg-background/90 border border-border-bright flex items-center justify-center cursor-pointer text-secondary-foreground text-[20px] font-light"
-        >
-          −
-        </button>
+      {/* Zoom controls */}
+      <div className="absolute right-4 z-[500] flex flex-col gap-2 top-[58px]">
+        <button onClick={() => mapRef.current?.zoomIn()}
+          className="w-[42px] h-[42px] rounded-full bg-background/90 border border-border flex items-center justify-center cursor-pointer text-secondary-foreground text-[20px] font-light">+</button>
+        <button onClick={() => mapRef.current?.zoomOut()}
+          className="w-[42px] h-[42px] rounded-full bg-background/90 border border-border flex items-center justify-center cursor-pointer text-secondary-foreground text-[20px] font-light">−</button>
       </div>
 
+      {/* Scan This Area button */}
+      {showScanBtn && !isLoadingTrails && (
+        <div className="absolute top-[58px] left-1/2 -translate-x-1/2 z-[500]">
+          <button onClick={scanArea}
+            className="bg-primary text-primary-foreground font-mono text-[11px] tracking-[1px] uppercase font-semibold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Scan this area
+          </button>
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {isLoadingTrails && (
+        <div className="absolute top-[58px] left-1/2 -translate-x-1/2 z-[500]">
+          <div className="bg-background/90 backdrop-blur-xl border border-border rounded-full px-5 py-2.5 flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="font-mono text-[10px] text-secondary-foreground tracking-[1px]">SCANNING...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Trail detail sheet */}
       {sheetTrail && (
-        <div className="absolute bottom-20 left-3 right-3 z-[600] bg-card border border-border-bright rounded-[20px] p-3.5 flex items-center gap-3 animate-slide-up">
+        <div className="absolute bottom-4 left-3 right-3 z-[600] bg-card border border-border rounded-[20px] p-3.5 flex items-center gap-3">
           <div className="text-[32px] flex-shrink-0">{sheetTrail.typeIcon || '⛰️'}</div>
           <div className="flex-1 min-w-0">
             <div className="font-bold text-[14px] text-foreground whitespace-nowrap overflow-hidden text-ellipsis">
@@ -219,31 +217,17 @@ export default function MapScreen() {
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <button
-              onClick={() => {
-                toggleSave(sheetTrail);
-                showToast(isSaved ? 'Removed' : '🔖 Saved!');
-              }}
-              className="font-mono text-[9px] tracking-[1.5px] uppercase px-3 py-2 rounded-full cursor-pointer border-none bg-gradient-to-br from-primary to-green-dark text-white"
-            >
+            <button onClick={() => { toggleSave(sheetTrail); showToast(isSaved ? 'Removed' : '🔖 Saved!'); }}
+              className="font-mono text-[9px] tracking-[1.5px] uppercase px-3 py-2 rounded-full cursor-pointer border-none bg-gradient-to-br from-primary to-green-700 text-primary-foreground">
               {isSaved ? '🔖 Saved' : '+ Save'}
             </button>
-            <button
-              onClick={() => {
-                setSheetTrail(null);
-                window.dispatchEvent(new CustomEvent('openLogModal', { detail: sheetTrail.title }));
-              }}
-              className="font-mono text-[9px] tracking-[1.5px] uppercase px-3 py-2 rounded-full cursor-pointer border border-primary bg-transparent text-primary"
-            >
+            <button onClick={() => { setSheetTrail(null); window.dispatchEvent(new CustomEvent('openLogModal', { detail: sheetTrail.title })); }}
+              className="font-mono text-[9px] tracking-[1.5px] uppercase px-3 py-2 rounded-full cursor-pointer border border-primary bg-transparent text-primary">
               Log
             </button>
           </div>
-          <button
-            onClick={() => setSheetTrail(null)}
-            className="bg-transparent border-none text-text-dim text-[20px] cursor-pointer p-1"
-          >
-            ×
-          </button>
+          <button onClick={() => setSheetTrail(null)}
+            className="bg-transparent border-none text-muted-foreground text-[20px] cursor-pointer p-1">×</button>
         </div>
       )}
     </div>

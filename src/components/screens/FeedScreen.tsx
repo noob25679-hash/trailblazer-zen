@@ -1,14 +1,21 @@
 import { useState, useMemo } from 'react';
 import { useApp } from '@/context/AppContext';
-import { difficultyColor, Trail } from '@/lib/trails';
+import { difficultyColor, Trail, haversine } from '@/lib/trails';
 
 export default function FeedScreen() {
-  const { trails, savedTrails, toggleSave, setScreen, showToast, isLoadingTrails } = useApp();
+  const { trails, savedTrails, toggleSave, setScreen, showToast, isLoadingTrails, userLatLng, loadTrailsForArea } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
   const filtered = useMemo(() => {
-    let list = trails;
+    let list = [...trails];
+    // Sort by distance from user if location available
+    if (userLatLng) {
+      list = list.map(t => ({
+        ...t,
+        _dist: haversine(userLatLng[0], userLatLng[1], t.lat, t.lng),
+      })).sort((a, b) => (a as any)._dist - (b as any)._dist);
+    }
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(t => t.title.toLowerCase().includes(q) || t.location.toLowerCase().includes(q));
@@ -18,7 +25,7 @@ export default function FeedScreen() {
     else if (filter === 'moderate') list = list.filter(t => t.difficulty === 'Moderate');
     else if (filter === 'hard') list = list.filter(t => t.difficulty === 'Hard');
     return list;
-  }, [trails, search, filter]);
+  }, [trails, search, filter, userLatLng]);
 
   const filters = [
     { key: 'all', label: 'All' },
@@ -75,12 +82,32 @@ export default function FeedScreen() {
         ))}
       </div>
 
+      {/* Refresh nearby button */}
+      <div className="px-4 mb-3">
+        <button onClick={() => {
+          if (userLatLng) {
+            loadTrailsForArea(userLatLng[0], userLatLng[1], 11, true);
+          } else {
+            showToast('📍 Getting location...');
+            navigator.geolocation?.getCurrentPosition(
+              pos => loadTrailsForArea(pos.coords.latitude, pos.coords.longitude, 11, true),
+              () => showToast('⚠️ Location unavailable'),
+              { timeout: 10000 }
+            );
+          }
+        }}
+          className="w-full py-2.5 rounded-full border border-border bg-card text-secondary-foreground font-mono text-[11px] tracking-[1px] uppercase cursor-pointer flex items-center justify-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          {isLoadingTrails ? 'Scanning...' : 'Discover nearby trails'}
+        </button>
+      </div>
+
       {/* Feed */}
       <div className="flex-1 overflow-y-auto scroll-hide pb-4">
         <div className="px-4">
           {isLoadingTrails && trails.length === 0 ? (
             <div className="text-center py-16">
-              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" className="mx-auto mb-2 animate-pulse-green">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" className="mx-auto mb-2 animate-pulse">
                 <circle cx="50" cy="50" r="48" fill="#10B981" fillOpacity="0.1"/>
                 <circle cx="50" cy="50" r="40" fill="#10B981" stroke="white" strokeWidth="4"/>
                 <path d="M30 65L50 30L70 65" stroke="white" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -97,7 +124,7 @@ export default function FeedScreen() {
             </div>
           ) : (
             filtered.map(trail => (
-              <TrailCard key={trail.id} trail={trail} saved={!!savedTrails.find(s => s.id === trail.id)} onSave={() => toggleSave(trail)} onLog={() => openLogModal(trail.title)} />
+              <TrailCard key={trail.id} trail={trail} saved={!!savedTrails.find(s => s.id === trail.id)} onSave={() => toggleSave(trail)} onLog={() => openLogModal(trail.title)} userLatLng={userLatLng} />
             ))
           )}
         </div>
@@ -106,7 +133,8 @@ export default function FeedScreen() {
   );
 }
 
-function TrailCard({ trail, saved, onSave, onLog }: { trail: Trail; saved: boolean; onSave: () => void; onLog: () => void }) {
+function TrailCard({ trail, saved, onSave, onLog, userLatLng }: { trail: Trail; saved: boolean; onSave: () => void; onLog: () => void; userLatLng?: [number, number] | null }) {
+  const dist = userLatLng ? haversine(userLatLng[0], userLatLng[1], trail.lat, trail.lng) : null;
   return (
     <div className="bg-card border border-border rounded-[20px] overflow-hidden mb-3 transition-transform active:scale-[0.98]">
       <div className="relative w-full h-40" style={{ background: 'linear-gradient(135deg, #0f2010, #162816)' }}>
@@ -117,7 +145,7 @@ function TrailCard({ trail, saved, onSave, onLog }: { trail: Trail; saved: boole
           {trail.typeIcon || '⛰️'} {trail.title}
         </div>
         <div className="text-[11px] text-muted-foreground mb-2.5">
-          📍 {trail.location} {trail.typeLabel && <span className="text-primary text-[10px]">· {trail.typeLabel}</span>}
+          📍 {trail.location} {dist !== null && <span className="text-primary text-[10px]">· {dist < 1 ? `${(dist * 1000).toFixed(0)}m away` : `${dist.toFixed(1)}km away`}</span>} {trail.typeLabel && <span className="text-primary text-[10px]">· {trail.typeLabel}</span>}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`font-mono text-[9px] font-medium px-2 py-0.5 rounded-md border uppercase tracking-[0.5px] ${difficultyColor(trail.difficulty)}`}>{trail.difficulty}</span>
