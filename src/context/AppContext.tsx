@@ -173,9 +173,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const loadTrailsForArea = useCallback(async (lat: number, lng: number, zoom: number) => {
+  const loadTrailsForArea = useCallback(async (lat: number, lng: number, zoom: number, force?: boolean) => {
     const areaKey = `${lat.toFixed(1)}_${lng.toFixed(1)}_${zoom}`;
-    if (lastFetchArea.current === areaKey) return;
+    if (!force && lastFetchArea.current === areaKey) return;
     lastFetchArea.current = areaKey;
 
     setIsLoadingTrails(true);
@@ -187,21 +187,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           const existingIds = new Set(prev.filter(t => !t.id.startsWith('fb_')).map(t => t.id));
           const newTrails = fetched.filter(t => !existingIds.has(t.id));
           if (newTrails.length === 0) return prev;
-          // Replace fallbacks with real data, keep any existing real trails
           const realPrev = prev.filter(t => !t.id.startsWith('fb_'));
           const merged = [...realPrev, ...newTrails].sort((a, b) => b.popularity - a.popularity);
-          // Cache for offline use
           try { localStorage.setItem('trekr_cached_trails', JSON.stringify(merged.slice(0, 100))); } catch {}
           return merged;
         });
+        showToast(`Found ${fetched.length} trails nearby!`);
+      } else {
+        showToast('No new trails found in this area');
       }
-      // If fetched is empty, keep whatever we have (cached or fallback)
     } catch (e) {
       console.warn('Failed to fetch trails:', e);
-      // Keep existing trails (cached or fallback) — no change needed
+      showToast('⚠️ Could not fetch trails — showing cached data');
     }
     setIsLoadingTrails(false);
-  }, []);
+  }, [showToast]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('trekr_name');

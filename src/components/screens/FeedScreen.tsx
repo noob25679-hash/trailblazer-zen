@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useApp } from '@/context/AppContext';
-import { difficultyColor, Trail } from '@/lib/trails';
+import { difficultyColor, Trail, haversine } from '@/lib/trails';
 
 export default function FeedScreen() {
-  const { trails, savedTrails, toggleSave, setScreen, showToast, isLoadingTrails } = useApp();
+  const { trails, savedTrails, toggleSave, setScreen, showToast, isLoadingTrails, userLatLng, loadTrailsForArea } = useApp();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
