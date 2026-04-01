@@ -14,7 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_trails: {
+        Row: {
+          created_at: string
+          difficulty: string
+          distance: number
+          elevation: number | null
+          external_trail_id: string
+          id: string
+          is_high_rated: boolean | null
+          lat: number
+          lng: number
+          location: string | null
+          popularity: number | null
+          rating: number
+          title: string
+          type_icon: string | null
+          type_label: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: string
+          distance?: number
+          elevation?: number | null
+          external_trail_id: string
+          id?: string
+          is_high_rated?: boolean | null
+          lat: number
+          lng: number
+          location?: string | null
+          popularity?: number | null
+          rating?: number
+          title: string
+          type_icon?: string | null
+          type_label?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          distance?: number
+          elevation?: number | null
+          external_trail_id?: string
+          id?: string
+          is_high_rated?: boolean | null
+          lat?: number
+          lng?: number
+          location?: string | null
+          popularity?: number | null
+          rating?: number
+          title?: string
+          type_icon?: string | null
+          type_label?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trek_logs: {
+        Row: {
+          companions: string[] | null
+          completed_at: string
+          created_at: string
+          distance_km: number
+          duration_minutes: number
+          elevation_gain: number
+          id: string
+          notes: string | null
+          rating: number
+          trail_title: string
+          trek_type: string
+          user_id: string
+        }
+        Insert: {
+          companions?: string[] | null
+          completed_at?: string
+          created_at?: string
+          distance_km?: number
+          duration_minutes?: number
+          elevation_gain?: number
+          id?: string
+          notes?: string | null
+          rating?: number
+          trail_title: string
+          trek_type?: string
+          user_id: string
+        }
+        Update: {
+          companions?: string[] | null
+          completed_at?: string
+          created_at?: string
+          distance_km?: number
+          duration_minutes?: number
+          elevation_gain?: number
+          id?: string
+          notes?: string | null
+          rating?: number
+          trail_title?: string
+          trek_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
