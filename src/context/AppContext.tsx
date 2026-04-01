@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { Trail, fetchTrailsFromOverpass, FALLBACK_TRAILS } from '@/lib/trails';
 import { TrekLog, calcXP, getRank } from '@/lib/xp';
+import { supabase } from '@/integrations/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 type Screen = 'feed' | 'map' | 'saved' | 'logs' | 'profile' | 'sensors' | 'rank' | 'shop' | 'camera';
 
@@ -36,6 +38,7 @@ interface AppState {
   isLoggedIn: boolean;
   setIsLoggedIn: (v: boolean) => void;
   logout: () => void;
+  user: User | null;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -49,15 +52,9 @@ export function useApp() {
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [screen, setScreen] = useState<Screen>('feed');
   const [trails, setTrails] = useState<Trail[]>([]);
-  const [savedTrails, setSavedTrails] = useState<Trail[]>(() =>
-    JSON.parse(localStorage.getItem('trekr_saved') || '[]')
-  );
-  const [trekLogs, setTrekLogs] = useState<TrekLog[]>(() =>
-    JSON.parse(localStorage.getItem('trekr_logs') || '[]')
-  );
-  const [userName, setUserNameState] = useState(() =>
-    localStorage.getItem('trekr_name') || 'Trekker'
-  );
+  const [savedTrails, setSavedTrails] = useState<Trail[]>([]);
+  const [trekLogs, setTrekLogs] = useState<TrekLog[]>([]);
+  const [userName, setUserNameState] = useState('Trekker');
   const [userLatLng, setUserLatLng] = useState<[number, number] | null>(null);
   const [isTracking, setIsTracking] = useState(false);
   const [trackName, setTrackName] = useState('');
@@ -70,7 +67,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isLoadingTrails, setIsLoadingTrails] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('trekr_name'));
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const lastFetchArea = useRef<string>('');
 
   const showToast = useCallback((msg: string) => {
@@ -79,35 +77,137 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => setToastVisible(false), 2500);
   }, []);
 
-  const setUserName = useCallback((n: string) => {
+  // Listen for auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      setIsLoggedIn(!!currentUser);
+
+      if (currentUser) {
+        // Fetch profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', currentUser.id)
+          .single();
+        if (profile) setUserNameState(profile.display_name);
+
+        // Fetch trek logs
+        const { data: logs } = await supabase
+          .from('trek_logs')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('completed_at', { ascending: false });
+        if (logs) {
+          setTrekLogs(logs.map(l => ({
+            id: l.id,
+            trailTitle: l.trail_title,
+            completedAt: l.completed_at,
+            distanceKm: Number(l.distance_km),
+            durationMinutes: l.duration_minutes,
+            elevationGain: l.elevation_gain,
+            rating: l.rating,
+            notes: l.notes || '',
+            trekType: l.trek_type as 'solo' | 'duo' | 'group',
+            companions: l.companions || [],
+          })));
+        }
+
+        // Fetch saved trails
+        const { data: saved } = await supabase
+          .from('saved_trails')
+          .select('*')
+          .eq('user_id', currentUser.id);
+        if (saved) {
+          setSavedTrails(saved.map(s => ({
+            id: s.external_trail_id,
+            title: s.title,
+            location: s.location || 'Nearby',
+            lat: Number(s.lat),
+            lng: Number(s.lng),
+            difficulty: s.difficulty as Trail['difficulty'],
+            distance: Number(s.distance),
+            rating: Number(s.rating),
+            elevation: s.elevation,
+            typeIcon: s.type_icon || '⛰️',
+            typeLabel: s.type_label || 'Trail',
+            isHighRated: s.is_high_rated || false,
+            popularity: s.popularity || 0,
+          })));
+        }
+      } else {
+        setUserNameState('Trekker');
+        setTrekLogs([]);
+        setSavedTrails([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const setUserName = useCallback(async (n: string) => {
     setUserNameState(n);
-    localStorage.setItem('trekr_name', n);
-  }, []);
+    if (user) {
+      await supabase.from('profiles').update({ display_name: n }).eq('user_id', user.id);
+    }
+  }, [user]);
 
-  const toggleSave = useCallback((trail: Trail) => {
-    setSavedTrails(prev => {
-      const exists = prev.find(t => t.id === trail.id);
-      const next = exists ? prev.filter(t => t.id !== trail.id) : [...prev, trail];
-      localStorage.setItem('trekr_saved', JSON.stringify(next));
-      return next;
-    });
-  }, []);
+  const toggleSave = useCallback(async (trail: Trail) => {
+    if (!user) return;
+    const exists = savedTrails.find(t => t.id === trail.id);
+    if (exists) {
+      setSavedTrails(prev => prev.filter(t => t.id !== trail.id));
+      await supabase.from('saved_trails').delete().eq('user_id', user.id).eq('external_trail_id', trail.id);
+    } else {
+      setSavedTrails(prev => [...prev, trail]);
+      await supabase.from('saved_trails').insert({
+        user_id: user.id,
+        external_trail_id: trail.id,
+        title: trail.title,
+        location: trail.location,
+        lat: trail.lat,
+        lng: trail.lng,
+        difficulty: trail.difficulty,
+        distance: trail.distance,
+        rating: trail.rating,
+        elevation: trail.elevation,
+        type_icon: trail.typeIcon,
+        type_label: trail.typeLabel,
+        is_high_rated: trail.isHighRated,
+        popularity: trail.popularity,
+      });
+    }
+  }, [user, savedTrails]);
 
-  const addLog = useCallback((log: TrekLog) => {
-    setTrekLogs(prev => {
-      const next = [log, ...prev];
-      localStorage.setItem('trekr_logs', JSON.stringify(next));
-      return next;
-    });
-  }, []);
+  const addLog = useCallback(async (log: TrekLog) => {
+    setTrekLogs(prev => [log, ...prev]);
+    if (user) {
+      const { data } = await supabase.from('trek_logs').insert({
+        user_id: user.id,
+        trail_title: log.trailTitle,
+        completed_at: log.completedAt,
+        distance_km: log.distanceKm,
+        duration_minutes: log.durationMinutes,
+        elevation_gain: log.elevationGain,
+        rating: log.rating,
+        notes: log.notes,
+        trek_type: log.trekType,
+        companions: log.companions,
+      }).select().single();
+      // Update local log with DB id
+      if (data) {
+        setTrekLogs(prev => prev.map(l => l.id === log.id ? { ...l, id: data.id } : l));
+      }
+    }
+  }, [user]);
 
-  const deleteLog = useCallback((id: string) => {
-    setTrekLogs(prev => {
-      const next = prev.filter(l => l.id !== id);
-      localStorage.setItem('trekr_logs', JSON.stringify(next));
-      return next;
-    });
-  }, []);
+  const deleteLog = useCallback(async (id: string) => {
+    setTrekLogs(prev => prev.filter(l => l.id !== id));
+    if (user) {
+      await supabase.from('trek_logs').delete().eq('id', id).eq('user_id', user.id);
+    }
+  }, [user]);
 
   const addToCart = useCallback((product: any) => {
     setCart(prev => {
@@ -165,7 +265,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const parsed = JSON.parse(cached) as Trail[];
         if (parsed.length > 0) setTrails(parsed);
       } else {
-        // No cache yet — seed with fallback trails immediately
         setTrails(FALLBACK_TRAILS);
       }
     } catch {
@@ -203,11 +302,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setIsLoadingTrails(false);
   }, [showToast]);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('trekr_name');
-    localStorage.removeItem('trekr_account');
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setUserNameState('Trekker');
     setIsLoggedIn(false);
+    setUser(null);
+    setTrekLogs([]);
+    setSavedTrails([]);
   }, []);
 
   // Get user location on mount — defer network fetch to avoid blocking initial render
@@ -228,7 +329,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } else {
         loadTrailsForArea(19.2, 73.7, 10);
       }
-    }, 2000); // Defer 2s so initial paint completes first
+    }, 2000);
     return () => clearTimeout(timerId);
   }, [loadTrailsForArea]);
 
@@ -242,6 +343,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         changeQty, friends, addFriend, removeFriend,
         loadTrailsForArea, isLoadingTrails, showToast,
         toastMessage, toastVisible, isLoggedIn, setIsLoggedIn, logout,
+        user,
       }}
     >
       {children}
