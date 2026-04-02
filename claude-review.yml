@@ -1,0 +1,48 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+
+      - name: Claude Code Review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          DIFF=$(cat pr_diff.txt)
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "{
+              \"model\": \"claude-sonnet-4-20250514\",
+              \"max_tokens\": 1024,
+              \"messages\": [{
+                \"role\": \"user\",
+                \"content\": \"You are reviewing a pull request for TREKR, a trail-finding and trekking companion app. Review the following diff and give concise, actionable feedback on bugs, code quality, and anything specific to a maps/trails app.\n\nDiff:\n$(echo "$DIFF" | head -c 8000)\"
+              }]
+            }")
+
+          echo "API Response: $RESPONSE"
+
+          if echo "$RESPONSE" | python3 -c "import sys,json; data=json.load(sys.stdin); exit(0 if 'content' in data else 1)"; then
+            COMMENT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['content'][0]['text'])")
+            gh pr comment $PR_NUMBER --repo $REPO --body "$COMMENT"
+          else
+            echo "API Error - full response above"
+            exit 1
+          fi
