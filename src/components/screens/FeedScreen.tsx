@@ -136,6 +136,34 @@ export default function FeedScreen() {
 
 function TrailCard({ trail, saved, onSave, onLog, userLatLng }: { trail: Trail; saved: boolean; onSave: () => void; onLog: () => void; userLatLng?: [number, number] | null }) {
   const dist = userLatLng ? haversine(userLatLng[0], userLatLng[1], trail.lat, trail.lng) : null;
+  const [aiDesc, setAiDesc] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  const fetchAiDescription = useCallback(async () => {
+    if (aiDesc) { setExpanded(e => !e); return; }
+    setExpanded(true);
+    setAiLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('trail-description', {
+        body: {
+          title: trail.title,
+          location: trail.location,
+          difficulty: trail.difficulty,
+          distance: trail.distance,
+          elevation: trail.elevation,
+          typeLabel: trail.typeLabel,
+        },
+      });
+      if (error) throw error;
+      setAiDesc(data.description);
+    } catch (e) {
+      console.error('AI description error:', e);
+      setAiDesc('Could not generate description. Try again later.');
+    }
+    setAiLoading(false);
+  }, [trail, aiDesc]);
+
   return (
     <div className="bg-card border border-border rounded-[20px] overflow-hidden mb-3 transition-transform active:scale-[0.98]">
       <div className="relative w-full h-40" style={{ background: 'linear-gradient(135deg, #0f2010, #162816)' }}>
@@ -158,6 +186,25 @@ function TrailCard({ trail, saved, onSave, onLog, userLatLng }: { trail: Trail; 
           )}
           {trail.isHighRated && <span className="font-mono text-[9px] font-medium px-2 py-0.5 rounded-md text-primary bg-primary/10 uppercase tracking-[0.5px]">🔥 Popular</span>}
         </div>
+
+        {/* AI Description */}
+        <button onClick={fetchAiDescription}
+          className="mt-2.5 w-full text-left font-mono text-[9px] tracking-[1px] uppercase px-3 py-2 rounded-xl border border-border bg-secondary/50 text-muted-foreground cursor-pointer transition-all hover:border-primary hover:text-primary flex items-center gap-2">
+          <span className="text-[14px]">✨</span>
+          {aiLoading ? 'Generating...' : expanded ? 'Hide AI Description' : 'AI Trail Info'}
+        </button>
+        {expanded && (
+          <div className="mt-2 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border text-[12px] text-secondary-foreground leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
+            {aiLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="animate-pulse">✨</span> Generating trail description...
+              </div>
+            ) : (
+              aiDesc
+            )}
+          </div>
+        )}
+
         <div className="flex gap-2 mt-3">
           <button onClick={onSave}
             className="font-mono text-[10px] tracking-[1.5px] uppercase font-medium px-3.5 py-2 rounded-full cursor-pointer transition-all flex items-center gap-1.5 border-none bg-gradient-to-br from-primary to-green-dark text-white shadow-[0_4px_20px_rgba(34,197,94,0.3)]">
