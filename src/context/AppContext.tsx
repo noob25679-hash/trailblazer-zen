@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 
 type Screen = 'feed' | 'map' | 'saved' | 'logs' | 'profile' | 'sensors' | 'rank' | 'shop' | 'camera';
 
+
 interface AppState {
   screen: Screen;
   setScreen: (s: Screen) => void;
