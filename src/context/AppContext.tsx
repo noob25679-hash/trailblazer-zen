@@ -40,6 +40,8 @@ interface AppState {
   setIsLoggedIn: (v: boolean) => void;
   logout: () => void;
   user: User | null;
+  guestMode: boolean;
+  setGuestMode: (v: boolean) => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -70,6 +72,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [toastVisible, setToastVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [guestMode, setGuestMode] = useState(false);
   const lastFetchArea = useRef<string>('');
 
   const showToast = useCallback((msg: string) => {
