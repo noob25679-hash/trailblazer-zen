@@ -347,7 +347,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         changeQty, friends, addFriend, removeFriend,
         loadTrailsForArea, isLoadingTrails, showToast,
         toastMessage, toastVisible, isLoggedIn, setIsLoggedIn, logout,
-        user,
+        user, guestMode, setGuestMode,
       }}
     >
       {children}
