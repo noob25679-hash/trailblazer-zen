@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 
 type Screen = 'feed' | 'map' | 'saved' | 'logs' | 'profile' | 'sensors' | 'rank' | 'shop' | 'camera';
 
+
 interface AppState {
   screen: Screen;
   setScreen: (s: Screen) => void;
@@ -39,6 +40,8 @@ interface AppState {
   setIsLoggedIn: (v: boolean) => void;
   logout: () => void;
   user: User | null;
+  guestMode: boolean;
+  setGuestMode: (v: boolean) => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -69,6 +72,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [toastVisible, setToastVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [guestMode, setGuestMode] = useState(false);
   const lastFetchArea = useRef<string>('');
 
   const showToast = useCallback((msg: string) => {
@@ -343,7 +347,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         changeQty, friends, addFriend, removeFriend,
         loadTrailsForArea, isLoadingTrails, showToast,
         toastMessage, toastVisible, isLoggedIn, setIsLoggedIn, logout,
-        user,
+        user, guestMode, setGuestMode,
       }}
     >
       {children}

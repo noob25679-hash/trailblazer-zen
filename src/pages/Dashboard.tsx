@@ -16,7 +16,7 @@ import LogModal from '@/components/modals/LogModal';
 import StartTrekModal from '@/components/modals/StartTrekModal';
 
 function DashboardInner() {
-  const { screen, setScreen, isLoggedIn, isTracking, trackName } = useApp();
+  const { screen, setScreen, isLoggedIn, isTracking, trackName, guestMode } = useApp();
   const [showLogModal, setShowLogModal] = useState(false);
   const [logPrefill, setLogPrefill] = useState('');
   const [showStartModal, setShowStartModal] = useState(false);
@@ -35,7 +35,7 @@ function DashboardInner() {
     };
   }, []);
 
-  if (!isLoggedIn) return <LoginScreen />;
+  if (!isLoggedIn && !guestMode) return <LoginScreen />;
 
   const screens: Record<string, JSX.Element> = {
     feed: <FeedScreen />,
