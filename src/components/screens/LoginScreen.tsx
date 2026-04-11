@@ -4,7 +4,7 @@ import { lovable } from '@/integrations/lovable/index';
 import { useApp } from '@/context/AppContext';
 
 export default function LoginScreen() {
-  const { showToast, setIsLoggedIn } = useApp();
+  const { showToast, setGuestMode } = useApp();
   const [tab, setTab] = useState<'signin' | 'register' | 'forgot'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -72,10 +72,8 @@ export default function LoginScreen() {
   };
 
   const doGuest = () => {
-    setIsLoggedIn(false);
+    setGuestMode(true);
     showToast('👋 Browsing as guest — sign in to save your progress!');
-    // The app will show the dashboard but without persistence
-    window.dispatchEvent(new CustomEvent('guest-mode'));
   };
 
   return (
