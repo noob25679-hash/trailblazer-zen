@@ -311,6 +311,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setUserNameState('Trekker');
     setIsLoggedIn(false);
     setUser(null);
+    setGuestMode(false);
     setTrekLogs([]);
     setSavedTrails([]);
   }, []);
