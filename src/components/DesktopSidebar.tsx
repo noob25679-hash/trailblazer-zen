@@ -60,7 +60,8 @@ function ThemeToggle({ collapsed }: { collapsed: boolean }) {
   );
 }
 
-  export default function DesktopSidebar() {
+export default function DesktopSidebar() {
+  const { screen, setScreen, isTracking } = useApp();
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === 'collapsed';
 
