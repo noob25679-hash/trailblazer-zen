@@ -14,14 +14,16 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-const mainNav = [
+type Screen = 'feed' | 'map' | 'saved' | 'logs' | 'profile' | 'sensors' | 'rank' | 'shop' | 'camera';
+
+const mainNav: { id: Screen; label: string; icon: typeof Compass }[] = [
   { id: 'feed', label: 'Discover', icon: Compass },
   { id: 'map', label: 'Map', icon: Map },
   { id: 'rank', label: 'Ranks', icon: TrendingUp },
   { id: 'profile', label: 'Profile', icon: User },
 ];
 
-const moreNav = [
+const moreNav: { id: Screen; label: string; icon: typeof Compass }[] = [
   { id: 'saved', label: 'Saved', icon: Bookmark },
   { id: 'logs', label: 'Logs', icon: ClipboardList },
   { id: 'shop', label: 'Shop', icon: Store },
