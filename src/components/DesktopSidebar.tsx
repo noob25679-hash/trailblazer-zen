@@ -31,7 +31,35 @@ const moreNav: { id: Screen; label: string; icon: typeof Compass }[] = [
   { id: 'camera', label: 'Camera', icon: Camera },
 ];
 
-export default function DesktopSidebar() {
+function ThemeToggle({ collapsed }: { collapsed: boolean }) {
+  const [isLight, setIsLight] = useState(() => document.documentElement.classList.contains('light'));
+
+  const toggle = () => {
+    const next = !isLight;
+    setIsLight(next);
+    document.documentElement.classList.toggle('light', next);
+    localStorage.setItem('theme', next ? 'light' : 'dark');
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+      document.documentElement.classList.add('light');
+      setIsLight(true);
+    }
+  }, []);
+
+  return (
+    <button
+      onClick={toggle}
+      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+    >
+      {isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+      {!collapsed && <span className="font-mono text-xs">{isLight ? 'Dark Mode' : 'Light Mode'}</span>}
+    </button>
+  );
+}
+
   const { screen, setScreen, isTracking } = useApp();
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === 'collapsed';
