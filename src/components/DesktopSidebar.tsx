@@ -1,5 +1,6 @@
 import { useApp } from '@/context/AppContext';
-import { Compass, Map, TrendingUp, User, Camera, Bookmark, ClipboardList, Store, Activity, Plus, Square, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { Compass, Map, TrendingUp, User, Camera, Bookmark, ClipboardList, Store, Activity, Plus, Square, PanelLeftClose, PanelLeft, Sun, Moon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -116,7 +117,7 @@ export default function DesktopSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="p-3 space-y-2">
         {isTracking && (
           <button
             onClick={() => setScreen('sensors')}
@@ -126,6 +127,7 @@ export default function DesktopSidebar() {
             {!collapsed && <span className="font-mono text-xs">Live Tracking</span>}
           </button>
         )}
+        <ThemeToggle collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
   );
