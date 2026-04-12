@@ -1,5 +1,6 @@
 import { useApp } from '@/context/AppContext';
-import { Compass, Map, TrendingUp, User, Camera, Bookmark, ClipboardList, Store, Activity, Plus, Square, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { Compass, Map, TrendingUp, User, Camera, Bookmark, ClipboardList, Store, Activity, Plus, Square, PanelLeftClose, PanelLeft, Sun, Moon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +30,35 @@ const moreNav: { id: Screen; label: string; icon: typeof Compass }[] = [
   { id: 'shop', label: 'Shop', icon: Store },
   { id: 'camera', label: 'Camera', icon: Camera },
 ];
+
+function ThemeToggle({ collapsed }: { collapsed: boolean }) {
+  const [isLight, setIsLight] = useState(() => document.documentElement.classList.contains('light'));
+
+  const toggle = () => {
+    const next = !isLight;
+    setIsLight(next);
+    document.documentElement.classList.toggle('light', next);
+    localStorage.setItem('theme', next ? 'light' : 'dark');
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+      document.documentElement.classList.add('light');
+      setIsLight(true);
+    }
+  }, []);
+
+  return (
+    <button
+      onClick={toggle}
+      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+    >
+      {isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+      {!collapsed && <span className="font-mono text-xs">{isLight ? 'Dark Mode' : 'Light Mode'}</span>}
+    </button>
+  );
+}
 
 export default function DesktopSidebar() {
   const { screen, setScreen, isTracking } = useApp();
@@ -116,7 +146,7 @@ export default function DesktopSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="p-3 space-y-2">
         {isTracking && (
           <button
             onClick={() => setScreen('sensors')}
@@ -126,6 +156,7 @@ export default function DesktopSidebar() {
             {!collapsed && <span className="font-mono text-xs">Live Tracking</span>}
           </button>
         )}
+        <ThemeToggle collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
   );
