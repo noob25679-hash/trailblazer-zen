@@ -76,6 +76,18 @@ function DashboardInner() {
         </div>
       )}
 
+      {/* Profile FAB - mobile only */}
+      {isMobile && screen !== 'profile' && (
+        <button onClick={() => setScreen('profile')}
+          className="fixed left-0 z-[998] w-[52px] h-[52px] rounded-r-2xl border-none cursor-pointer flex items-center justify-center bg-gradient-to-br from-primary to-green-dark shadow-[4px_4px_20px_rgba(34,197,94,0.4)] transition-all"
+          style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px) + 80px)' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </button>
+      )}
+
       {/* Camera FAB - mobile only */}
       {isMobile && (
         <button onClick={() => setScreen('camera')}
