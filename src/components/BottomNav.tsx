@@ -1,6 +1,6 @@
 import { useApp } from '@/context/AppContext';
 
-type NavScreen = 'feed' | 'map' | 'rank' | 'profile';
+type NavScreen = 'feed' | 'map' | 'rank' | 'shop';
 
 export default function BottomNav() {
   const { screen, setScreen, isTracking } = useApp();
