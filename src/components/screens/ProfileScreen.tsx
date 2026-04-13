@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
 import { calcXP, getRank, COMMUNITY } from '@/lib/xp';
 
@@ -140,7 +140,17 @@ export default function ProfileScreen() {
 
         {tab === 'settings' && (
           <div>
-            <div className="font-mono text-[11px] tracking-[1.5px] text-muted-foreground uppercase mt-4 px-4 mb-2.5 font-semibold">Settings</div>
+            <div className="font-mono text-[11px] tracking-[1.5px] text-muted-foreground uppercase mt-4 px-4 mb-2.5 font-semibold">Appearance</div>
+            <div className="mx-4 bg-card border border-border rounded-2xl overflow-hidden mb-4">
+              <div className="flex items-center gap-3 px-4 py-4">
+                <span className="text-[18px] w-8 text-center">{isLight ? '🌙' : '☀️'}</span>
+                <span className="flex-1 text-[14px] text-secondary-foreground">{isLight ? 'Dark Mode' : 'Light Mode'}</span>
+                <button onClick={toggleTheme} className="w-12 h-7 rounded-full relative transition-colors" style={{ background: isLight ? 'hsl(var(--primary))' : 'hsl(var(--muted))' }}>
+                  <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${isLight ? 'left-[calc(100%-1.625rem)]' : 'left-0.5'}`} />
+                </button>
+              </div>
+            </div>
+            <div className="font-mono text-[11px] tracking-[1.5px] text-muted-foreground uppercase px-4 mb-2.5 font-semibold">Settings</div>
             <div className="mx-4 bg-card border border-border rounded-2xl overflow-hidden">
               {[
                 { icon: '🔔', label: 'Notifications' },
