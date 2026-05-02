@@ -220,3 +220,30 @@ function TrailCard({ trail, saved, onSave, onLog, userLatLng }: { trail: Trail; 
     </div>
   );
 }
+
+function TrailCardSkeleton({ delayMs = 0 }: { delayMs?: number }) {
+  const style = { animationDelay: `${delayMs}ms` } as React.CSSProperties;
+  return (
+    <div
+      className="bg-card border border-border rounded-[20px] overflow-hidden mb-3 animate-pulse"
+      style={style}
+      aria-hidden="true"
+    >
+      <div className="w-full h-40 bg-secondary/60" />
+      <div className="p-3.5">
+        <div className="h-4 w-3/4 rounded-md bg-secondary mb-2.5" />
+        <div className="h-3 w-1/2 rounded-md bg-secondary/70 mb-3" />
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="h-4 w-14 rounded-md bg-secondary" />
+          <div className="h-4 w-16 rounded-md bg-secondary" />
+          <div className="h-4 w-12 rounded-md bg-secondary" />
+        </div>
+        <div className="mt-2.5 h-7 w-full rounded-xl bg-secondary/60" />
+        <div className="flex gap-2 mt-3">
+          <div className="h-7 w-20 rounded-full bg-secondary" />
+          <div className="h-7 w-24 rounded-full bg-secondary/70" />
+        </div>
+      </div>
+    </div>
+  );
+}
