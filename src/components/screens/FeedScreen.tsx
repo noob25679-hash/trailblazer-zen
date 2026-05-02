@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useApp } from '@/context/AppContext';
 import { difficultyColor, Trail, haversine } from '@/lib/trails';
 import { supabase } from '@/integrations/supabase/client';
+import MountainLoader from '@/components/MountainLoader';
 
 export default function FeedScreen() {
   const { trails, savedTrails, toggleSave, setScreen, showToast, isLoadingTrails, userLatLng, loadTrailsForArea } = useApp();
