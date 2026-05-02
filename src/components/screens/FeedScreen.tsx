@@ -107,14 +107,9 @@ export default function FeedScreen() {
       <div className="flex-1 overflow-y-auto scroll-hide pb-4">
         <div className="px-4">
           {isLoadingTrails && trails.length === 0 ? (
-            <div className="text-center py-16">
-              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" className="mx-auto mb-2 animate-pulse">
-                <circle cx="50" cy="50" r="48" fill="#10B981" fillOpacity="0.1"/>
-                <circle cx="50" cy="50" r="40" fill="#10B981" stroke="white" strokeWidth="4"/>
-                <path d="M30 65L50 30L70 65" stroke="white" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M15 65H85" stroke="white" strokeWidth="5" strokeLinecap="round"/>
-              </svg>
-              <div className="font-display text-[22px] text-secondary-foreground">Finding Trails...</div>
+            <div className="flex flex-col items-center justify-center py-16">
+              <MountainLoader size={140} />
+              <div className="font-display text-[22px] text-secondary-foreground mt-4">Finding Trails...</div>
               <div className="text-[13px] text-muted-foreground mt-2">Getting your location to discover nearby trails</div>
             </div>
           ) : filtered.length === 0 ? (
