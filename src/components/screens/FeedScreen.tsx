@@ -108,11 +108,16 @@ export default function FeedScreen() {
       <div className="flex-1 overflow-y-auto scroll-hide pb-4">
         <div className="px-4">
           {isLoadingTrails && trails.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <MountainLoader size={140} />
-              <div className="font-display text-[22px] text-secondary-foreground mt-4">Finding Trails...</div>
-              <div className="text-[13px] text-muted-foreground mt-2">Getting your location to discover nearby trails</div>
-            </div>
+            <>
+              <div className="flex flex-col items-center justify-center pt-6 pb-4">
+                <MountainLoader size={96} />
+                <div className="font-display text-[18px] text-secondary-foreground mt-3 tracking-[1px]">Finding Trails...</div>
+                <div className="text-[12px] text-muted-foreground mt-1">Scanning nearby areas</div>
+              </div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <TrailCardSkeleton key={i} delayMs={i * 120} />
+              ))}
+            </>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-[56px] mb-4">🏔️</div>
@@ -210,6 +215,33 @@ function TrailCard({ trail, saved, onSave, onLog, userLatLng }: { trail: Trail; 
             className="font-mono text-[10px] tracking-[1.5px] uppercase font-medium px-3.5 py-2 rounded-full cursor-pointer transition-all border border-primary bg-transparent text-primary">
             Log Trek
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrailCardSkeleton({ delayMs = 0 }: { delayMs?: number }) {
+  const style = { animationDelay: `${delayMs}ms` } as React.CSSProperties;
+  return (
+    <div
+      className="bg-card border border-border rounded-[20px] overflow-hidden mb-3 animate-pulse"
+      style={style}
+      aria-hidden="true"
+    >
+      <div className="w-full h-40 bg-secondary/60" />
+      <div className="p-3.5">
+        <div className="h-4 w-3/4 rounded-md bg-secondary mb-2.5" />
+        <div className="h-3 w-1/2 rounded-md bg-secondary/70 mb-3" />
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="h-4 w-14 rounded-md bg-secondary" />
+          <div className="h-4 w-16 rounded-md bg-secondary" />
+          <div className="h-4 w-12 rounded-md bg-secondary" />
+        </div>
+        <div className="mt-2.5 h-7 w-full rounded-xl bg-secondary/60" />
+        <div className="flex gap-2 mt-3">
+          <div className="h-7 w-20 rounded-full bg-secondary" />
+          <div className="h-7 w-24 rounded-full bg-secondary/70" />
         </div>
       </div>
     </div>
