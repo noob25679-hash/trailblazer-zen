@@ -108,11 +108,16 @@ export default function FeedScreen() {
       <div className="flex-1 overflow-y-auto scroll-hide pb-4">
         <div className="px-4">
           {isLoadingTrails && trails.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <MountainLoader size={140} />
-              <div className="font-display text-[22px] text-secondary-foreground mt-4">Finding Trails...</div>
-              <div className="text-[13px] text-muted-foreground mt-2">Getting your location to discover nearby trails</div>
-            </div>
+            <>
+              <div className="flex flex-col items-center justify-center pt-6 pb-4">
+                <MountainLoader size={96} />
+                <div className="font-display text-[18px] text-secondary-foreground mt-3 tracking-[1px]">Finding Trails...</div>
+                <div className="text-[12px] text-muted-foreground mt-1">Scanning nearby areas</div>
+              </div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <TrailCardSkeleton key={i} delayMs={i * 120} />
+              ))}
+            </>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-[56px] mb-4">🏔️</div>
