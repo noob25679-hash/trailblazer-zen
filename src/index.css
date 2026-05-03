@@ -4,107 +4,103 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
+/*
+  HikeHub theme — earthy palette derived from the brand mark:
+  cream background, deep forest green primary, rust + sand + slate accents.
+  Light is the default; .dark inverts to a deep-forest mode using the same accents.
+*/
+
 @layer base {
   :root {
-    --background: 120 25% 3%;
-    --foreground: 120 60% 97%;
+    --background: 40 28% 94%;
+    --foreground: 150 20% 14%;
 
-    --card: 120 22% 5%;
-    --card-foreground: 120 60% 97%;
+    --card: 40 30% 97%;
+    --card-foreground: 150 20% 14%;
 
-    --popover: 120 22% 5%;
-    --popover-foreground: 120 60% 97%;
+    --popover: 40 30% 97%;
+    --popover-foreground: 150 20% 14%;
 
-    --primary: 142 71% 45%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 150 38% 26%;
+    --primary-foreground: 40 30% 97%;
 
-    --secondary: 120 18% 9%;
-    --secondary-foreground: 142 71% 73%;
+    --secondary: 36 22% 88%;
+    --secondary-foreground: 150 20% 22%;
 
-    --muted: 120 18% 9%;
-    --muted-foreground: 142 71% 73%;
+    --muted: 36 18% 90%;
+    --muted-foreground: 150 8% 38%;
 
-    --accent: 120 18% 9%;
-    --accent-foreground: 142 71% 73%;
+    --accent: 16 38% 46%;
+    --accent-foreground: 40 30% 97%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 8 62% 48%;
+    --destructive-foreground: 40 30% 97%;
 
-    --warning: 38 92% 50%;
+    --warning: 32 60% 52%;
 
-    --border: 120 18% 9%;
-    --border-bright: 142 71% 45% / 0.19;
-    --input: 120 18% 9%;
-    --ring: 142 71% 45%;
+    --border: 36 18% 82%;
+    --input: 36 18% 82%;
+    --ring: 150 38% 26%;
 
     --radius: 1rem;
 
-    --green: 142 71% 45%;
-    --green-dark: 142 72% 37%;
-    --green-dim: 142 41% 22%;
-    --green-muted: 142 69% 63%;
-    --text-sec: 142 78% 85%;
-    --text-dim: 120 18% 15%;
+    /* Brand palette tokens */
+    --forest: 150 38% 26%;
+    --sage: 140 22% 55%;
+    --slate-blue: 212 22% 42%;
+    --rust: 16 38% 46%;
+    --sand: 32 38% 62%;
+    --cream: 40 28% 94%;
 
-    --nav-h: 72px;
-
-    --sidebar-background: 120 25% 3%;
-    --sidebar-foreground: 120 60% 97%;
-    --sidebar-primary: 142 71% 45%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 120 18% 9%;
-    --sidebar-accent-foreground: 142 71% 73%;
-    --sidebar-border: 120 18% 9%;
-    --sidebar-ring: 142 71% 45%;
+    --sidebar-background: 40 28% 94%;
+    --sidebar-foreground: 150 20% 14%;
+    --sidebar-primary: 150 38% 26%;
+    --sidebar-primary-foreground: 40 30% 97%;
+    --sidebar-accent: 36 22% 88%;
+    --sidebar-accent-foreground: 150 20% 22%;
+    --sidebar-border: 36 18% 82%;
+    --sidebar-ring: 150 38% 26%;
   }
 
-  .light {
-    --background: 120 20% 98%;
-    --foreground: 120 25% 10%;
+  .dark {
+    --background: 150 22% 8%;
+    --foreground: 40 24% 92%;
 
-    --card: 120 15% 96%;
-    --card-foreground: 120 25% 10%;
+    --card: 150 18% 11%;
+    --card-foreground: 40 24% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 120 25% 10%;
+    --popover: 150 18% 11%;
+    --popover-foreground: 40 24% 92%;
 
-    --primary: 142 71% 38%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 140 32% 58%;
+    --primary-foreground: 150 22% 8%;
 
-    --secondary: 120 15% 92%;
-    --secondary-foreground: 120 25% 25%;
+    --secondary: 150 14% 16%;
+    --secondary-foreground: 40 24% 88%;
 
-    --muted: 120 10% 93%;
-    --muted-foreground: 120 10% 40%;
+    --muted: 150 14% 16%;
+    --muted-foreground: 40 12% 68%;
 
-    --accent: 120 15% 92%;
-    --accent-foreground: 120 25% 25%;
+    --accent: 16 42% 58%;
+    --accent-foreground: 150 22% 8%;
 
-    --destructive: 0 84% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 8 62% 55%;
+    --destructive-foreground: 40 24% 92%;
 
-    --warning: 38 92% 50%;
+    --warning: 32 70% 60%;
 
-    --border: 120 10% 88%;
-    --border-bright: 142 71% 45% / 0.15;
-    --input: 120 10% 88%;
-    --ring: 142 71% 38%;
+    --border: 150 14% 20%;
+    --input: 150 14% 20%;
+    --ring: 140 32% 58%;
 
-    --green: 142 71% 38%;
-    --green-dark: 142 72% 30%;
-    --green-dim: 142 30% 75%;
-    --green-muted: 142 50% 45%;
-    --text-sec: 120 15% 30%;
-    --text-dim: 120 10% 75%;
-
-    --sidebar-background: 120 15% 96%;
-    --sidebar-foreground: 120 25% 10%;
-    --sidebar-primary: 142 71% 38%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 120 15% 92%;
-    --sidebar-accent-foreground: 120 25% 25%;
-    --sidebar-border: 120 10% 88%;
-    --sidebar-ring: 142 71% 38%;
+    --sidebar-background: 150 22% 8%;
+    --sidebar-foreground: 40 24% 92%;
+    --sidebar-primary: 140 32% 58%;
+    --sidebar-primary-foreground: 150 22% 8%;
+    --sidebar-accent: 150 14% 16%;
+    --sidebar-accent-foreground: 40 24% 88%;
+    --sidebar-border: 150 14% 20%;
+    --sidebar-ring: 140 32% 58%;
   }
 }
 
@@ -112,146 +108,72 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
     font-family: 'DM Sans', sans-serif;
-    overflow: hidden;
-    overscroll-behavior: none;
   }
-
   #root {
     width: 100%;
-    height: 100dvh;
+    min-height: 100dvh;
   }
 }
 
-/* Font utilities */
-.font-display {
-  font-family: 'Bebas Neue', sans-serif;
-}
+.font-display { font-family: 'Bebas Neue', sans-serif; }
+.font-mono-dm { font-family: 'DM Mono', monospace; }
 
-.font-mono-dm {
-  font-family: 'DM Mono', monospace;
-}
-
-/* Leaflet overrides */
-.leaflet-control-zoom,
-.leaflet-control-attribution {
-  display: none !important;
-}
-
-.leaflet-container {
-  background: #1a2e1a !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* Scrollbar hide */
-.scroll-hide::-webkit-scrollbar {
-  display: none;
-}
-.scroll-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Animations */
-@keyframes pulse-green {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-@keyframes slide-up {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes sheet-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.animate-pulse-green {
-  animation: pulse-green 1.5s infinite;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.25s ease;
-}
-
-.animate-sheet-up {
-  animation: sheet-up 0.3s ease;
-}
-
-/* Toast */
-.toast-enter {
-  transform: translateX(-50%) translateY(-80px);
-}
-.toast-show {
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Mountain Loader */
-@keyframes ml-rise {
-  0%   { transform: translateY(14px) scale(0.92); opacity: 0; }
-  35%  { opacity: 0.95; }
+/* HikeHub Loader animations */
+@keyframes hh-rise {
+  0%   { transform: translateY(16px) scale(0.92); opacity: 0; }
+  40%  { opacity: 0.9; }
   60%  { transform: translateY(0) scale(1); opacity: 1; }
   100% { transform: translateY(-4px) scale(1.02); opacity: 0.85; }
 }
 
-@keyframes ml-wave-drift {
+@keyframes hh-wave-drift {
   0%, 100% { transform: translateX(0) translateY(0); opacity: 0.45; }
-  50%      { transform: translateX(-6px) translateY(3px); opacity: 0.75; }
+  50%      { transform: translateX(-8px) translateY(4px); opacity: 0.8; }
 }
 
-@keyframes ml-breathe {
+@keyframes hh-breathe {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.04); }
 }
 
-.mountain-loader {
+.hikehub-loader {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  animation: ml-breathe 3.2s ease-in-out infinite;
+  gap: 16px;
+  animation: hh-breathe 3.4s ease-in-out infinite;
   transform-origin: center bottom;
 }
 
-.mountain-loader svg {
-  overflow: visible;
-}
+.hikehub-loader svg { overflow: visible; }
 
-.ml-peak {
+.hh-peak {
   transform-origin: center bottom;
-  animation: ml-rise 2.4s ease-in-out infinite;
-  mix-blend-mode: multiply;
-}
-
-.light .ml-peak {
-  mix-blend-mode: multiply;
-}
-
-:root:not(.light) .ml-peak {
-  mix-blend-mode: screen;
+  animation: hh-rise 2.6s ease-in-out infinite;
   opacity: 0.85;
 }
+.hh-peak-1 { animation-delay: 0s;    }
+.hh-peak-2 { animation-delay: 0.4s;  }
+.hh-peak-3 { animation-delay: 0.8s;  }
 
-.ml-peak-1 { animation-delay: 0s;    }
-.ml-peak-2 { animation-delay: 0.35s; }
-.ml-peak-3 { animation-delay: 0.7s;  }
-
-.ml-wave {
-  animation: ml-wave-drift 2.8s ease-in-out infinite;
+.hh-wave {
+  animation: hh-wave-drift 3s ease-in-out infinite;
   transform-origin: center;
 }
 
-.ml-label {
+.hh-label {
   font-family: 'DM Mono', monospace;
   font-size: 11px;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   color: hsl(var(--muted-foreground));
-  animation: pulse-green 1.8s ease-in-out infinite;
+  animation: hh-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes hh-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
 }
