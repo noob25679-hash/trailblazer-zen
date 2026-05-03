@@ -116,11 +116,13 @@ function Login({
       </div>
 
       <div className="px-7 pb-8 -mt-2">
-        <div className="flex items-center gap-2 justify-center mb-1">
-          <img src={logo} alt="" className="w-8 h-8 rounded-lg object-cover" />
-          <h2 className="font-display text-3xl tracking-[2px] text-primary">WELCOME BACK</h2>
+        <div className="flex flex-col items-center mb-1">
+          <img src={logo} alt="" className="w-10 h-10 rounded-lg object-cover mb-2" />
+          <h2 className="font-display text-[28px] leading-none tracking-[1.5px] text-primary text-center">
+            WELCOME BACK
+          </h2>
         </div>
-        <p className="text-center text-sm text-muted-foreground mb-6">Login to your account</p>
+        <p className="text-center text-sm text-muted-foreground mb-6 mt-2">Login to your account</p>
 
         <form onSubmit={onSubmit} className="space-y-3">
           <Field icon="user" type="email" placeholder="Email" required />
