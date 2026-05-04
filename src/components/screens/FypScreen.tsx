@@ -19,7 +19,7 @@ const TOP = [
   { id: 3, name: 'Big Sur', sub: 'USA', img: coast },
 ];
 
-export default function FypScreen({ onSignOut }: { onSignOut?: () => void }) {
+export default function FypScreen({ onSignOut, onProfile }: { onSignOut?: () => void; onProfile?: () => void }) {
   const [active, setActive] = useState<(typeof CATEGORIES)[number]>('Jungle');
   const [mapOpen, setMapOpen] = useState(false);
 
