@@ -21,7 +21,7 @@ export default function LoginScreen({ onAuthed }: { onAuthed?: () => void }) {
   return (
     <div className="min-h-dvh w-full bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-[420px] mx-auto">
-        {view === 'welcome' && <Welcome onSignIn={() => setView('login')} onCreate={() => setView('register')} />}
+        {view === 'welcome' && <Welcome onSignIn={() => setView('login')} onCreate={() => setView('register')} onGuest={() => onAuthed?.()} />}
         {view === 'login' && (
           <Login
             onBack={() => setView('welcome')}
