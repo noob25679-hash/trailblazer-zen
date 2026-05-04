@@ -19,7 +19,7 @@ const TOP = [
   { id: 3, name: 'Big Sur', sub: 'USA', img: coast },
 ];
 
-export default function FypScreen({ onSignOut }: { onSignOut?: () => void }) {
+export default function FypScreen({ onSignOut, onProfile }: { onSignOut?: () => void; onProfile?: () => void }) {
   const [active, setActive] = useState<(typeof CATEGORIES)[number]>('Jungle');
   const [mapOpen, setMapOpen] = useState(false);
 
@@ -41,7 +41,7 @@ export default function FypScreen({ onSignOut }: { onSignOut?: () => void }) {
                 <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
               </svg>
             </IconBtn>
-            <button onClick={onSignOut} className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-border">
+            <button onClick={onProfile} aria-label="Profile" className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-border">
               <img src={logo} alt="profile" className="w-full h-full object-cover" />
             </button>
           </div>
