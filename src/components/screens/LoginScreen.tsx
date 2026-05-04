@@ -44,7 +44,7 @@ export default function LoginScreen({ onAuthed }: { onAuthed?: () => void }) {
 }
 
 /* ---------- Welcome ---------- */
-function Welcome({ onSignIn, onCreate }: { onSignIn: () => void; onCreate: () => void }) {
+function Welcome({ onSignIn, onCreate, onGuest }: { onSignIn: () => void; onCreate: () => void; onGuest: () => void }) {
   return (
     <div className="relative rounded-[36px] overflow-hidden shadow-xl h-[640px] flex flex-col justify-end">
       <img src={hero} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -74,6 +74,12 @@ function Welcome({ onSignIn, onCreate }: { onSignIn: () => void; onCreate: () =>
           className="mt-3 w-full py-2 text-white/85 text-sm underline-offset-4 hover:underline"
         >
           Create an account
+        </button>
+        <button
+          onClick={onGuest}
+          className="mt-1 w-full py-2 text-white/70 text-xs font-mono tracking-[2px] uppercase hover:text-white"
+        >
+          Continue as guest →
         </button>
       </div>
     </div>
